@@ -9,16 +9,30 @@ class TestField(AbstractVirtualCapability):
 
     def __init__(self, server):
         super().__init__(server)
+        self.TestFieldBoundaries = [[0., 0., 0.], [0., 0., 0.]]
 
     def execute_command(self, command: dict):
-        if command["capability"] is "GetTestFieldBoundaries":
-            pass
-        elif command["capability"] is "SetTestFieldBoundaries":
-            pass
+        respond = {
+            "type": "respond"
+        }
+        if command["capability"] == "GetTestFieldBoundaries":
+            respond["capability"] = "GetTestFieldBoundaries"
+            respond["parameters"] = [{"uri": "TestFieldPointA", "content": self.TestFieldBoundaries[0]},
+                                     {"uri": "TestFieldPointB", "content": self.TestFieldBoundaries[1]}]
+        elif command["capability"] == "SetTestFieldBoundaries":
+            for p in command["parameters"]:
+                if p["uri"] == "TestFieldPointA":
+                    self.TestFieldBoundaries[0] = p["content"]
+                elif p["uri"] == "TestFieldPointB":
+                    self.TestFieldBoundaries[1] = p["content"]
+            respond["capability"] = "SetTestFieldBoundaries"
+            respond["parameters"] = [{"uri": "TestFieldPointA", "content": self.TestFieldBoundaries[0]},
+                                     {"uri": "TestFieldPointB", "content": self.TestFieldBoundaries[1]}]
+
+        self.send_message(respond)
 
     def loop(self):
-        sleep(5)
-        self.send_message({"alive":True})
+        pass
 
 
 if __name__ == "__main__":
@@ -27,6 +41,7 @@ if __name__ == "__main__":
         print("[Main] Received SIGTERM signal")
         listener.kill()
         quit(1)
+
 
     try:
         server = VirtualCapabilityServer()

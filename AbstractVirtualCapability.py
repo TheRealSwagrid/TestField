@@ -69,7 +69,7 @@ class VirtualCapabilityServer(Thread):
             pass
 
     def message_received(self, msg: str):
-        if msg is "kill":
+        if msg == "kill":
             # Kill the container
             Popen(["pkill", "python"])
         for vc in self.virtualCapabilities:
