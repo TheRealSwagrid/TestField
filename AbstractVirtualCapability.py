@@ -96,6 +96,7 @@ class AbstractVirtualCapability(Thread):
         self.dynamix = {}
         self.dev_name = None
         self.server = server
+        self.server.addVirtualCapability(self)
         self.running = True
 
     def run(self) -> None:

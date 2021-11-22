@@ -32,8 +32,6 @@ class TestField(AbstractVirtualCapability):
         self.send_message(respond)
 
     def loop(self):
-        self.send_message({"HEY!": "alive"})
-        sleep(2)
         pass
 
 
@@ -43,7 +41,6 @@ if __name__ == "__main__":
         print("[Main] Received SIGTERM signal")
         listener.kill()
         quit(1)
-
 
     try:
         server = VirtualCapabilityServer()
