@@ -32,6 +32,8 @@ class TestField(AbstractVirtualCapability):
         self.send_message(respond)
 
     def loop(self):
+        self.send_message({"HEY!": "alive"})
+        sleep(2)
         pass
 
 
