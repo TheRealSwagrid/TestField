@@ -35,11 +35,6 @@ if __name__ == "__main__":
         server = VirtualCapabilityServer()
         listener = TestField(server)
         listener.start()
-        listener.execute_command({"type": "trigger",
-                     "capability": "SetTestFieldBoundaries",
-                     "src":-1,
-                     "parameters": [{"uri": "TestFieldPointA", "content": [1., 2., 3.]},
-                                 {"uri": "TestFieldPointB", "content": [3., 2., 1.]}]})
         signal.signal(signal.SIGTERM, handler)
         listener.join()
         # Needed for properly closing, when program is being stopped wit a Keyboard Interrupt

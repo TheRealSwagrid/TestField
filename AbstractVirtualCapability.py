@@ -4,7 +4,7 @@ import socket
 import sys
 from abc import abstractmethod
 from subprocess import Popen
-from threading import Thread
+from threading import Thread, Timer
 from time import sleep
 
 
@@ -88,6 +88,31 @@ class VirtualCapabilityServer(Thread):
         self.socket.close()
         self.socket.shutdown(socket.SHUT_RDWR)
 
+class RepeatedTimer(object):
+    def __init__(self, interval, function, *args, **kwargs):
+        self._timer     = None
+        self.interval   = interval
+        self.function   = function
+        self.args       = args
+        self.kwargs     = kwargs
+        self.is_running = False
+        self.start()
+
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
+
+    def start(self):
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+
 
 class AbstractVirtualCapability(Thread):
     def __init__(self, server: VirtualCapabilityServer):
@@ -98,6 +123,7 @@ class AbstractVirtualCapability(Thread):
         self.server = server
         self.server.addVirtualCapability(self)
         self.running = True
+        self.timer_list = {}
 
     def run(self) -> None:
         self.server.start()
@@ -108,18 +134,24 @@ class AbstractVirtualCapability(Thread):
     def execute_command(self, command: dict):
         formatPrint(self, f"Got Command {command}")
         ret = {"type":"respond",
-               "capability":command["capability"],
-               "src":command["src"]
-               }
-        params = {}
-
-        for p in command["parameters"]:
-            params[p["uri"]] = p["content"]
-        params = self.__getattribute__(command["capability"])(params)
-
-        ret["parameters"] = [{"uri": p, "content":params[p]} for p in params.keys()]
-        formatPrint(self, f"Executed Command {ret}")
-        self.send_message(ret)
+                   "capability":command["capability"]}
+        if "src" in command.keys():
+            ret["src"] = command["src"]
+        if "streaming" in command.keys():
+            ret["streaming"] = command["streaming"]
+            if command["capability"] in self.timer_list.keys():
+                self.timer_list[command["capability"]].stop()
+            command.pop("streaming")
+            self.timer_list[command["capability"]] = RepeatedTimer(1./command["streaming"], self.execute_command, command, None)
+            formatPrint(self, f"Streaming now {command}")
+        else:
+            params = {}
+            for p in command["parameters"]:
+                params[p["uri"]] = p["content"]
+            params = self.__getattribute__(command["capability"])(params)
+            ret["parameters"] = [{"uri": p, "content":params[p]} for p in params.keys()]
+            formatPrint(self, f"Executed Command {ret}")
+            self.send_message(ret)
 
     @abstractmethod
     def loop(self):
@@ -129,4 +161,6 @@ class AbstractVirtualCapability(Thread):
         self.server.send_message(json.dumps(command))
 
     def kill(self):
+        for timer in self.timer_list:
+            self.timer_list[timer].kill()
         self.server.kill()
