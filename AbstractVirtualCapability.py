@@ -85,7 +85,7 @@ class VirtualCapabilityServer(Thread):
 
     def kill(self):
         self.running = False
-        self.sock.close()
+        self.socket.close()
         self.socket.shutdown(socket.SHUT_RDWR)
 
 
@@ -105,9 +105,21 @@ class AbstractVirtualCapability(Thread):
         while self.running:
             self.loop()
 
-    @abstractmethod
     def execute_command(self, command: dict):
-        raise NotImplementedError
+        formatPrint(self, f"Got Command {command}")
+        ret = {"type":"respond",
+               "capability":command["capability"],
+               "src":command["src"]
+               }
+        params = {}
+
+        for p in command["parameters"]:
+            params[p["uri"]] = p["content"]
+        params = self.__getattribute__(command["capability"])(params)
+
+        ret["parameters"] = [{"uri": p, "content":params[p]} for p in params.keys()]
+        formatPrint(self, f"Executed Command {ret}")
+        self.send_message(ret)
 
     @abstractmethod
     def loop(self):

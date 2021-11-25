@@ -11,25 +11,14 @@ class TestField(AbstractVirtualCapability):
         super().__init__(server)
         self.TestFieldBoundaries = [[0., 0., 0.], [0., 0., 0.]]
 
-    def execute_command(self, command: dict):
-        respond = {
-            "type": "respond"
-        }
-        if command["capability"] == "GetTestFieldBoundaries":
-            respond["capability"] = "GetTestFieldBoundaries"
-            respond["parameters"] = [{"uri": "TestFieldPointA", "content": self.TestFieldBoundaries[0]},
-                                     {"uri": "TestFieldPointB", "content": self.TestFieldBoundaries[1]}]
-        elif command["capability"] == "SetTestFieldBoundaries":
-            for p in command["parameters"]:
-                if p["uri"] == "TestFieldPointA":
-                    self.TestFieldBoundaries[0] = p["content"]
-                elif p["uri"] == "TestFieldPointB":
-                    self.TestFieldBoundaries[1] = p["content"]
-            respond["capability"] = "SetTestFieldBoundaries"
-            respond["parameters"] = [{"uri": "TestFieldPointA", "content": self.TestFieldBoundaries[0]},
-                                     {"uri": "TestFieldPointB", "content": self.TestFieldBoundaries[1]}]
+    def GetTestFieldBoundaries(self, params: dict) -> dict:
+        return {"TestFieldPointA": self.TestFieldBoundaries[0],
+                "TestFieldPointB": self.TestFieldBoundaries[1]}
 
-        self.send_message(respond)
+    def SetTestFieldBoundaries(self, params: dict) -> dict:
+        self.TestFieldBoundaries[0] = params["TestFieldPointA"]
+        self.TestFieldBoundaries[1] = params["TestFieldPointB"]
+        return self.GetTestFieldBoundaries(params)
 
     def loop(self):
         pass
@@ -46,6 +35,11 @@ if __name__ == "__main__":
         server = VirtualCapabilityServer()
         listener = TestField(server)
         listener.start()
+        listener.execute_command({"type": "trigger",
+                     "capability": "SetTestFieldBoundaries",
+                     "src":-1,
+                     "parameters": [{"uri": "TestFieldPointA", "content": [1., 2., 3.]},
+                                 {"uri": "TestFieldPointB", "content": [3., 2., 1.]}]})
         signal.signal(signal.SIGTERM, handler)
         listener.join()
         # Needed for properly closing, when program is being stopped wit a Keyboard Interrupt
