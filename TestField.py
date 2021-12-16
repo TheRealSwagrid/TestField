@@ -4,7 +4,7 @@ import pickle
 from threading import Thread
 from time import sleep
 
-from AbstractVirtualCapability import AbstractVirtualCapability, VirtualCapabilityServer
+from AbstractVirtualCapability import AbstractVirtualCapability, VirtualCapabilityServer, formatPrint
 
 
 class TestField(AbstractVirtualCapability):
@@ -16,6 +16,7 @@ class TestField(AbstractVirtualCapability):
             self.TestFieldBoundaries = pickle.load("TestFieldBoundaries")
         except:
             pass
+        formatPrint(self, self.TestFieldBoundaries)
 
     def GetTestFieldBoundaries(self, params: dict) -> dict:
         return {"TestFieldPointA": self.TestFieldBoundaries[0],
@@ -49,7 +50,7 @@ if __name__ == "__main__":
         listener.join()
         # Needed for properly closing, when program is being stopped wit a Keyboard Interrupt
     except KeyboardInterrupt:
-        print("[Main] Received KeyboardInterrupt")
+        formatPrint(listener, "[Main] Received KeyboardInterrupt")
         server.kill()
         listener.kill()
 
