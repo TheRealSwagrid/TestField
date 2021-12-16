@@ -1,5 +1,6 @@
 import signal
 import sys
+import pickle
 from threading import Thread
 from time import sleep
 
@@ -11,6 +12,10 @@ class TestField(AbstractVirtualCapability):
     def __init__(self, server):
         super().__init__(server)
         self.TestFieldBoundaries = [[0., 0., 0.], [0., 0., 0.]]
+        try:
+            self.TestFieldBoundaries = pickle.load("TestFieldBoundaries")
+        except:
+            pass
 
     def GetTestFieldBoundaries(self, params: dict) -> dict:
         return {"TestFieldPointA": self.TestFieldBoundaries[0],
@@ -19,6 +24,7 @@ class TestField(AbstractVirtualCapability):
     def SetTestFieldBoundaries(self, params: dict) -> dict:
         self.TestFieldBoundaries[0] = params["TestFieldPointA"]
         self.TestFieldBoundaries[1] = params["TestFieldPointB"]
+        pickle.dump("TestFieldBoundaries", self.TestFieldBoundaries)
         return self.GetTestFieldBoundaries(params)
 
     def loop(self):
