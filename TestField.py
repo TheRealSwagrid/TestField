@@ -50,7 +50,8 @@ if __name__ == "__main__":
         listener.join()
         # Needed for properly closing, when program is being stopped wit a Keyboard Interrupt
     except KeyboardInterrupt:
-        formatPrint(listener, "[Main] Received KeyboardInterrupt")
+        print("[Main] Received KeyboardInterrupt")
         server.kill()
         listener.kill()
+
 
