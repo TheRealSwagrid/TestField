@@ -11,14 +11,16 @@ class TestField(AbstractVirtualCapability):
 
     def __init__(self, server):
         super().__init__(server)
-        self.TestFieldBoundaries = [[0., 0., 0.], [0., 0., 0.]]
+        self.TestFieldBoundaries = [[10., 10., 0.], [-10., -10., 0.]]
         try:
-            self.TestFieldBoundaries = pickle.load("TestFieldBoundaries")
+            #self.TestFieldBoundaries = pickle.load("TestFieldBoundaries")#
+            a = 0
         except:
             pass
-        formatPrint(self, self.TestFieldBoundaries)
+        formatPrint(self, f"positions : {self.TestFieldBoundaries}")
 
     def GetTestFieldBoundaries(self, params: dict) -> dict:
+        formatPrint(self, f"Sending TestFieldBountaries: {self.TestFieldBoundaries}")
         return {"TestFieldPointA": self.TestFieldBoundaries[0],
                 "TestFieldPointB": self.TestFieldBoundaries[1]}
 
