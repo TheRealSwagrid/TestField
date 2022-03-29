@@ -20,7 +20,7 @@ class TestField(AbstractVirtualCapability):
         formatPrint(self, f"positions : {self.TestFieldBoundaries}")
 
     def GetTestFieldBoundaries(self, params: dict) -> dict:
-        formatPrint(self, f"Sending TestFieldBountaries: {self.TestFieldBoundaries}")
+        #formatPrint(self, f"Sending TestFieldBountaries: {self.TestFieldBoundaries}")
         return {"TestFieldPointA": self.TestFieldBoundaries[0],
                 "TestFieldPointB": self.TestFieldBoundaries[1]}
 
