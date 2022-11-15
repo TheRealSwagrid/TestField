@@ -11,7 +11,7 @@ class TestField(AbstractVirtualCapability):
 
     def __init__(self, server):
         super().__init__(server)
-        self.TestFieldBoundaries = [[4, -3.5, 0.], [3.5, -4., 0.]]
+        self.TestFieldBoundaries = [[2, -2, 0.], [-2., 2., 0.]]
         '''
         try:
             self.TestFieldBoundaries = pickle.loads("TestFieldBoundaries")
