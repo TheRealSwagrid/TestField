@@ -11,7 +11,7 @@ class TestField(AbstractVirtualCapability):
 
     def __init__(self, server):
         super().__init__(server)
-        self.TestFieldBoundaries = [[1, -1, 0.], [-1., 1., 0.]]
+        self.TestFieldBoundaries = [[2., -2., 0.], [-2., 2., 0.]]
         '''
         try:
             self.TestFieldBoundaries = pickle.loads("TestFieldBoundaries")
@@ -28,7 +28,7 @@ class TestField(AbstractVirtualCapability):
     def SetTestFieldBoundaries(self, params: dict) -> dict:
         self.TestFieldBoundaries[0] = params["TestFieldPointA"]
         self.TestFieldBoundaries[1] = params["TestFieldPointB"]
-        pickle.dump("TestFieldBoundaries", self.TestFieldBoundaries)
+        #pickle.dump("TestFieldBoundaries", self.TestFieldBoundaries)
         return self.GetTestFieldBoundaries(params)
 
     def loop(self):
